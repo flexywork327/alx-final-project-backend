@@ -1,9 +1,9 @@
 const Categories = require("../model/categories_Model");
 const JobsModel = require("../model/jobs_Model");
 const UserModel = require("../model/user_Model");
+const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-JWT_SECRET = process.env.JWT_SECRET;
 
 //todo:@ =======================================================================  GET USER DETAILS =================================================================== //
 
