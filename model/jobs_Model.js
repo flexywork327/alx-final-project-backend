@@ -7,10 +7,6 @@ const jobSchema = mongoose.Schema(
       ref: "User",
     },
 
-    job_image: {
-      type: String,
-    },
-
     job_title: {
       type: String,
       required: [true, "Please add a Job title"],

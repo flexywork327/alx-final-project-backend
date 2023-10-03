@@ -1,6 +1,7 @@
 const cloudinary = require("../utils/cloudinary");
 const JobsModel = require("../model/jobs_Model");
 const UserModel = require("../model/user_Model");
+const Categories = require("../model/categories_Model");
 
 //todo:@ ======================================================================= GET ALL JOBS ===================================================================== //
 //@route Get api/posted jobs
@@ -148,8 +149,8 @@ const deactivateJob = async (req, res) => {
 //@desc Add product
 //@access Public
 const postJob = async (req, res) => {
-  const files = req.files;
   const {
+    user_id,
     job_title,
     job_type,
     job_category,
@@ -160,38 +161,12 @@ const postJob = async (req, res) => {
     job_company_email,
     job_term,
     job_description,
-    date,
     post_duration,
   } = req.body;
 
-  if (files === null) {
-    res.json({
-      message: "No file selected",
-      status: 400,
-    });
-  }
-
   try {
-    // using cloudinary to upload images to the cloud in a folder called jobya
-    const result = await cloudinary.uploader.upload(files.path, {
-      upload_preset: "jobya",
-    });
-    // get the company id from the token payload in the userAuth middleware page
-    const company_id = verified_user._id;
-
-    //check if the job poster exist
-    const companyExist = await UserModel.findOne({ company_id });
-
-    if (!companyExist) {
-      res.json({
-        message: "Please login to post an item ",
-        status: 400,
-      });
-    }
-
     const job = await JobsModel.create({
-      company_uuid: company_id,
-      job_image: result.secure_url,
+      company_uuid: user_id,
       job_title,
       job_type,
       job_category,
@@ -200,10 +175,8 @@ const postJob = async (req, res) => {
       job_salary,
       job_experience,
       job_company_email,
-      job_company_phone,
       job_term,
       job_description,
-      date,
       post_duration,
     });
 
@@ -349,6 +322,54 @@ const JobFilter = async (req, res) => {
   }
 };
 
+//todo:@ =======================================================================  CATEGORIES  =================================================================== //
+
+// @Desc Get all categories
+// @route GET /api/shopper/categories
+// @access public
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Categories.find();
+
+    res.json({
+      status: 200,
+      message: "Categories retrieved successfully",
+      info: categories,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
+// todo: @ =======================================================================  CREATE PRODUCTS CATEGORY  =================================================================== //
+// @Desc Create products category
+// @route POST /api/admin/create_products_category
+// @access private
+
+const createProductsCategory = async (req, res) => {
+  const { category_name } = req.body;
+
+  try {
+    const category = await Categories.create({
+      category_name,
+    });
+
+    res.json({
+      status: 201,
+      message: "Category created successfully",
+      info: category,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
 // // an algorithm to display jobs to the user based on the user's location
 // const job = await JobsModel.find({
 //   job_location: { $regex: job_location_lower, $options: "i" },
@@ -370,7 +391,9 @@ module.exports = {
   getInactive,
   activateJob,
   JobFilter,
+  getCategories,
   getActive,
   getJobs,
+  createProductsCategory,
   postJob,
 };

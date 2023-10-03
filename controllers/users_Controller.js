@@ -204,33 +204,11 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-//todo:@ =======================================================================  CATEGORIES  =================================================================== //
-
-// @Desc Get all categories
-// @route GET /api/shopper/categories
-// @access public
-const getCategories = async (req, res) => {
-  try {
-    const categories = await Categories.find();
-
-    res.json({
-      status: 200,
-      message: "Categories retrieved successfully",
-      info: categories,
-    });
-  } catch (error) {
-    res.json({
-      status: 500,
-      message: error.message,
-    });
-  }
-};
-
 //todo:@ =======================================================================  TOKEN GENERATION  =================================================================== //
 
 // Generate token
 const generateToken = (id) => {
-  return jwt.sign({ id }, JWT_SECRET, { expiresIn: "1hr" });
+  return jwt.sign({ id }, JWT_SECRET, { expiresIn: "12hr" });
 };
 
 module.exports = {
@@ -239,6 +217,5 @@ module.exports = {
   registerAdmin,
   loginSeeker,
   loginAdmin,
-  getCategories,
   generateToken,
 };
