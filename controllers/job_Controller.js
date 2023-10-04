@@ -2,6 +2,7 @@ const cloudinary = require("../utils/cloudinary");
 const JobsModel = require("../model/jobs_Model");
 const UserModel = require("../model/user_Model");
 const Categories = require("../model/categories_Model");
+const Applied_Jobs = require("../model/jobs_Applied_Model");
 
 //todo:@ ======================================================================= GET ALL JOBS ===================================================================== //
 //@route Get api/posted jobs
@@ -302,17 +303,20 @@ const JobFilter = async (req, res) => {
   const job_category_lower = job_category.toLowerCase();
 
   try {
+    // find job by either job_title, job_location or job_category
     const job = await JobsModel.find({
-      job_title: { $regex: job_title_lower, $options: "i" },
-      job_location: { $regex: job_location_lower, $options: "i" },
-      job_category: { $regex: job_category_lower, $options: "i" },
-      active: "true",
+      $or: [
+        { job_title: { $regex: job_title_lower, $options: "i" } },
+        { job_location: { $regex: job_location_lower, $options: "i" } },
+        { job_category: { $regex: job_category_lower, $options: "i" } },
+      ],
+      active: true,
     });
 
     res.status(200).json({
       status: 200,
       message: "Job retrieved successfully",
-      job,
+      info: job,
     });
   } catch (error) {
     res.json({
@@ -370,18 +374,60 @@ const createProductsCategory = async (req, res) => {
   }
 };
 
-// // an algorithm to display jobs to the user based on the user's location
-// const job = await JobsModel.find({
-//   job_location: { $regex: job_location_lower, $options: "i" },
-//   active: "true",
-// });
+// todo: @ =======================================================================  APPLY FOR JOB  =================================================================== //
+// @Desc Apply for job
+// @route POST /api/shopper/apply_for_job
+// @access private
 
-// // an algorithm to display jobs to the user based on the user's location and category
-// const job = await JobsModel.find({
-//   job_location: { $regex: job_location_lower, $options: "i" },
-//   job_category: { $regex: job_category_lower, $options: "i" },
-//   active: "true",
-// });
+const ApplyForJob = async (req, res) => {
+  const { job_id, user_id } = req.body;
+  const file = req.files;
+  console.log(file);
+
+  try {
+    const job = await JobsModel.findById(job_id);
+
+    if (!job) {
+      res.json({
+        status: 404,
+        message: "Job not found",
+      });
+    }
+
+    const user = await UserModel.findById(user_id);
+
+    if (!user) {
+      res.json({
+        status: 404,
+        message: "User not found",
+      });
+    }
+
+    // upload file to cloudinary
+    const result = await cloudinary.uploader.upload(file.resume[0].path, {
+      resource_type: "auto",
+      folder: "jobseeker",
+    });
+
+    // store in database
+    const applied_job = await Applied_Jobs.create({
+      job_id,
+      user_id,
+      resume: result.secure_url,
+    });
+
+    res.json({
+      status: 200,
+      message: "Successfully applied for job",
+      info: applied_job,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   getJobsByCategory,
@@ -396,4 +442,5 @@ module.exports = {
   getJobs,
   createProductsCategory,
   postJob,
+  ApplyForJob,
 };
