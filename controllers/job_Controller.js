@@ -419,7 +419,30 @@ const ApplyForJob = async (req, res) => {
     res.json({
       status: 200,
       message: "Successfully applied for job",
-      info: applied_job,
+      // info: applied_job,
+      info: result,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
+// todo: @ =======================================================================  GET ALL APPLIED JOBS  =================================================================== //
+// @Desc Get all applied jobs
+// @route POST /api/shopper/get_all_applied_jobs
+// @access private
+
+const getAllAppliedJobs = async (req, res) => {
+  try {
+    const applied_jobs = await Applied_Jobs.find();
+
+    res.json({
+      status: 200,
+      message: "Successfully fetched all applied jobs",
+      info: applied_jobs,
     });
   } catch (error) {
     res.json({
@@ -443,4 +466,5 @@ module.exports = {
   createProductsCategory,
   postJob,
   ApplyForJob,
+  getAllAppliedJobs,
 };

@@ -14,6 +14,7 @@ const {
   postJob,
   createProductsCategory,
   ApplyForJob,
+  getAllAppliedJobs,
 } = require("../controllers/job_Controller");
 const { AuthUser } = require("../middlewares/user_Auth_Middleware");
 const upload = require("../utils/multer");
@@ -25,6 +26,8 @@ router.get("/dashboard", getDashboard);
 router.get("/inactive", getInactive);
 router.get("/all_jobs", getJobs);
 router.get("/active", getActive);
+router.get("/get_all_applied_jobs", getAllAppliedJobs);
+
 // todo: ==================================================== POST ROUTES ====================================================
 
 router.post("/create_products_category", createProductsCategory);
