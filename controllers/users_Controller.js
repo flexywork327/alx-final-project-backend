@@ -161,49 +161,6 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-// TODO: ======================================================== Login User ========================================================
-
-// desc Login User
-// @route post /admin/login
-// @access public
-const loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // check if user exists
-    const userExists = await UserModel.findOne({ email });
-
-    if (!userExists) {
-      res.json({
-        status: 400,
-        message: "User email does not exist",
-      });
-    }
-
-    // check if password is correct
-    const isMatch = await bcrypt.compare(password, userExists.password);
-
-    if (!isMatch) {
-      res.json({
-        status: 400,
-        message: "Incorrect password",
-      });
-    }
-
-    res.json({
-      status: 200,
-      message: "Login successful",
-      info: userExists,
-      token: generateToken(userExists._id),
-    });
-  } catch (error) {
-    res.json({
-      status: 500,
-      message: error.message,
-    });
-  }
-};
-
 //todo:@ =======================================================================  TOKEN GENERATION  =================================================================== //
 
 // Generate token
@@ -216,6 +173,5 @@ module.exports = {
   registerSeeker,
   registerAdmin,
   loginSeeker,
-  loginAdmin,
   generateToken,
 };
