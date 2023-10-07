@@ -160,13 +160,10 @@ const postJob = async (req, res) => {
     job_type,
     job_category,
     job_location,
-    job_country,
     job_salary,
     job_experience,
     job_company_email,
-    job_term,
     job_description,
-    post_duration,
   } = req.body;
 
   try {
@@ -176,13 +173,10 @@ const postJob = async (req, res) => {
       job_type,
       job_category,
       job_location,
-      job_country,
       job_salary,
       job_experience,
       job_company_email,
-      job_term,
       job_description,
-      post_duration,
     });
 
     res.json({

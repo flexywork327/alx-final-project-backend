@@ -27,11 +27,6 @@ const jobSchema = mongoose.Schema(
       required: [true, "Please add a Job location"],
     },
 
-    job_country: {
-      type: String,
-      required: [true, "Please add a Job country"],
-    },
-
     job_salary: {
       type: String,
       required: [true, "Please add a Job salary"],
@@ -47,37 +42,19 @@ const jobSchema = mongoose.Schema(
       required: [true, "Please add a Job company email"],
     },
 
-    job_term: {
-      type: String,
-      required: [true, "Please add a shift"],
-    },
-
     job_description: {
       type: String,
       required: [true, "Please add a job description"],
     },
 
-    date: {
-      type: Date,
-      default: Date.now,
-    },
-
-    post_duration: {
-      type: String,
-      default: "30 days",
-    },
-
-    month_name: {
-      // display month name of data creation in a string
-      type: String,
-      default: new Date().toLocaleString("en-US", {
-        month: "long",
-      }),
-    },
-
     status: {
       type: String,
       default: "active",
+    },
+
+    date: {
+      type: Date,
+      default: Date.now(`MM/DD/YYYY`),
     },
   },
   {
