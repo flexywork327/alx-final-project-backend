@@ -8,11 +8,15 @@ const Applied_Jobs = require("../model/jobs_Applied_Model");
 //@route Get api/posted jobs
 //@desc Get all posted jobs
 //@access Public
-const getJobs = async (req, res) => {
+const getJobsPostedByUser = async (req, res) => {
+  const { user_id } = req.body;
+
   try {
     //Get all jobs and arrange them by the latest jobs by date
 
-    const jobs = await JobsModel.find().sort({ date: -1 });
+    const jobs = await JobsModel.find({ company_uuid: user_id }).sort({
+      date: -1,
+    });
 
     res.json({
       status: 200,
@@ -111,8 +115,8 @@ const activateJob = async (req, res) => {
 //@route Deactivate an item
 //@ Post api/admin/deactivate_job
 //private
-const deactivateJob = async (req, res) => {
-  const { job_id } = req.body;
+const ChangeJobStatus = async (req, res) => {
+  const { job_id, status_flag } = req.body;
   try {
     const job = await JobsModel.findById(job_id);
 
@@ -126,7 +130,7 @@ const deactivateJob = async (req, res) => {
     //find by id and update
     const updatedJob = await JobsModel.findByIdAndUpdate(
       job._id,
-      { active: false },
+      { status: status_flag },
       { new: true }
     );
 
@@ -452,19 +456,99 @@ const getAllAppliedJobs = async (req, res) => {
   }
 };
 
+// todo: @ =======================================================================  GET JOBS BY PREFERENCE  =================================================================== //
+// @Desc Get jobs by preference
+// @route POST /api/shopper/get_jobs_by_preference
+// @access private
+
+const JobsByPreference = async (req, res) => {
+  const { job_category, job_location } = req.body;
+
+  try {
+    const jobs = await JobsModel.find({
+      $or: [
+        { job_category: { $regex: job_category, $options: "i" } },
+        { job_location: { $regex: job_location, $options: "i" } },
+      ],
+    });
+
+    res.json({
+      status: 200,
+      message: "Successfully fetched jobs by preference",
+      info: jobs,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
+// todo: @ =======================================================================  GET USER JOB DASHBOARD  =================================================================== //
+// @Desc Get user job dashboard
+// @route POST /api/shopper/get_user_job_dashboard
+
+const GetUserJobDashboard = async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    // const jobs = await JobsModel.find({ company_uuid: user_id });
+    // get total number of jobs posted by user and arrange them by the latest jobs by date
+    const total_jobs = await JobsModel.find({ company_uuid: user_id })
+      .sort({
+        date: -1,
+      })
+      .countDocuments();
+
+    // get total number of active jobs posted by user and arrange them by the latest jobs by date
+    const activeJobs = await JobsModel.find({
+      company_uuid: user_id,
+      status: "active",
+    })
+      .sort({ date: -1 })
+      .countDocuments();
+
+    // get total number of inactive jobs posted by user and arrange them by the latest jobs by date
+    const inactiveJobs = await JobsModel.find({
+      company_uuid: user_id,
+      status: "inactive",
+    })
+      .sort({ date: -1 })
+      .countDocuments();
+
+    res.json({
+      status: 200,
+      message: "Successfully fetched user job dashboard",
+      info: {
+        total_jobs,
+        activeJobs,
+        inactiveJobs,
+      },
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getJobsByCategory,
   getJobDetails,
-  deactivateJob,
+  ChangeJobStatus,
   getDashboard,
   getInactive,
   activateJob,
   JobFilter,
   getCategories,
+  GetUserJobDashboard,
   getActive,
-  getJobs,
+  getJobsPostedByUser,
   createProductsCategory,
   postJob,
   ApplyForJob,
   getAllAppliedJobs,
+  JobsByPreference,
 };

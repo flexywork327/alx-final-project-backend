@@ -75,9 +75,9 @@ const jobSchema = mongoose.Schema(
       }),
     },
 
-    active: {
+    status: {
       type: String,
-      default: true,
+      default: "active",
     },
   },
   {

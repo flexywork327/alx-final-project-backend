@@ -161,6 +161,48 @@ const registerAdmin = async (req, res) => {
   }
 };
 
+// todo:@ =======================================================================  SET JOB PREFERENCE  =================================================================== //
+// desc Set Job Preference
+// @route Post /api/seeker/set_preference
+// @access private
+
+const setJobPreference = async (req, res) => {
+  const { user_id, job_preference } = req.body;
+
+  try {
+    // check if user exists
+    const userExists = await UserModel.findById(user_id);
+
+    if (!userExists) {
+      res.json({
+        status: 400,
+        message: "User does not exist",
+      });
+    }
+
+    // create User
+    const user = await UserModel.findByIdAndUpdate(
+      user_id,
+      {
+        preferences: job_preference,
+        isPreferenceSelected: true,
+      },
+      { new: true }
+    );
+
+    res.json({
+      status: 200,
+      message: "Job preference set successfully",
+      info: user,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
 //todo:@ =======================================================================  TOKEN GENERATION  =================================================================== //
 
 // Generate token
@@ -174,4 +216,5 @@ module.exports = {
   registerAdmin,
   loginSeeker,
   generateToken,
+  setJobPreference,
 };
