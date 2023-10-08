@@ -42,6 +42,11 @@ const jobSchema = mongoose.Schema(
       required: [true, "Please add a Job company email"],
     },
 
+    job_company_name: {
+      type: String,
+      required: [true, "Please add a Job company name"],
+    },
+
     job_description: {
       type: String,
       required: [true, "Please add a job description"],

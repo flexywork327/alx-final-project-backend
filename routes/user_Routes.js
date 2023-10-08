@@ -5,14 +5,11 @@ const {
   setJobPreference,
   registerSeeker,
   loginSeeker,
-  registerAdmin,
 } = require("../controllers/users_Controller");
-const { AuthUser } = require("../middlewares/user_Auth_Middleware");
 
 // todos: ================================================================= post Routes =================================================================
-router.post("/set_preference", AuthUser, setJobPreference);
-router.post("/user_details", AuthUser, getUserDetails);
-router.post("/registerAdmin", registerAdmin);
+router.post("/set_preference", setJobPreference);
+router.post("/user_details", getUserDetails);
 router.post("/register", registerSeeker);
 router.post("/login", loginSeeker);
 

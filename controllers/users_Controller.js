@@ -4,6 +4,11 @@ const UserModel = require("../model/user_Model");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const {
+  users_Validator,
+  login_Validator,
+  jobs_IDValidator,
+} = require("../schema-validators/users_Validator");
 
 //todo:@ =======================================================================  GET USER DETAILS =================================================================== //
 
@@ -11,58 +16,22 @@ const bcrypt = require("bcryptjs");
 //@route GET /api/seeker/user
 //@access private
 const getUserDetails = async (req, res) => {
-  const { user_id } = req.body;
+  // const { user_id } = req.body;
+  // todo: @ desc- verify the input provided
+  const { error, value } = jobs_IDValidator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
   try {
-    const user = await UserModel.findById(user_id);
+    const user = await UserModel.findById(value.user_id);
 
     res.json({
       status: 200,
       message: "User details",
-      info: user,
-    });
-  } catch (error) {
-    res.json({
-      status: 500,
-      message: error.message,
-    });
-  }
-};
-
-//todo:@ =======================================================================  REGISTER USER  =================================================================== //
-
-// desc Register User
-// @route Post /api/seeker
-// @access public
-const registerSeeker = async (req, res) => {
-  const { first_name, last_name, email, password, role } = req.body;
-
-  try {
-    // check if user exists
-    const userExists = await UserModel.findOne({ email });
-
-    if (userExists) {
-      res.json({
-        status: 400,
-        message: "Account exist with same email address",
-      });
-    }
-
-    // Hash Password
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
-
-    // create User
-    const user = await UserModel.create({
-      first_name,
-      last_name,
-      email,
-      password: hashPassword,
-      role,
-    });
-
-    res.json({
-      status: 201,
-      message: "User created successfully",
       info: user,
     });
   } catch (error) {
@@ -79,11 +48,19 @@ const registerSeeker = async (req, res) => {
 // @route Post /api/seeker/login
 // @access public
 const loginSeeker = async (req, res) => {
-  const { email, password } = req.body;
+  // const { email, password } = req.body;
+  // todo: @ desc- verify the input provided
+  const { error, value } = login_Validator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
 
   try {
     // check if user exists
-    const userExists = await UserModel.findOne({ email });
+    const userExists = await UserModel.findOne({ email: value.email });
 
     if (!userExists) {
       res.json({
@@ -93,7 +70,7 @@ const loginSeeker = async (req, res) => {
     }
 
     // check if password is correct
-    const isMatch = await bcrypt.compare(password, userExists.password);
+    const isMatch = await bcrypt.compare(value.password, userExists.password);
 
     if (!isMatch) {
       res.json({
@@ -121,12 +98,19 @@ const loginSeeker = async (req, res) => {
 // desc Register Admin
 // @route post /admin/register
 // @access public
-const registerAdmin = async (req, res) => {
-  const { first_name, last_name, email, password, role } = req.body;
+const registerSeeker = async (req, res) => {
+  // todo: @ desc- verify the input provided
+  const { error, value } = users_Validator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
 
   try {
     // check if user exists
-    const userExists = await UserModel.findOne({ email });
+    const userExists = await UserModel.findOne({ email: value.email });
 
     if (userExists) {
       res.json({
@@ -137,15 +121,15 @@ const registerAdmin = async (req, res) => {
 
     // Hash Password
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
+    const hashPassword = await bcrypt.hash(value.password, salt);
 
     // create User
     const user = await UserModel.create({
-      first_name,
-      last_name,
-      email,
+      first_name: value.first_name,
+      last_name: value.last_name,
+      email: value.email,
       password: hashPassword,
-      role,
+      role: value.role,
     });
 
     res.json({
@@ -213,7 +197,6 @@ const generateToken = (id) => {
 module.exports = {
   getUserDetails,
   registerSeeker,
-  registerAdmin,
   loginSeeker,
   generateToken,
   setJobPreference,

@@ -11,7 +11,7 @@ const AuthUser = async (req, res, next) => {
   ) {
     try {
       // Get token from header
-      token = req.headers.authorization.split(" ")[1];
+      const token = req.headers.authorization.split(" ")[1];
 
       // Verify token
       const decoded = jwt.verify(token, JWT_SECRET);
