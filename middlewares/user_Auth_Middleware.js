@@ -21,7 +21,7 @@ const AuthUser = async (req, res, next) => {
 
       next();
     } catch (error) {
-      res.json({
+      return res.json({
         status: 500,
         message: "Not authorized, Please add token",
         info: error.message,
@@ -30,7 +30,7 @@ const AuthUser = async (req, res, next) => {
   }
 
   if (!token) {
-    res.json({
+    return res.json({
       status: 404,
       message: "Not authorized, no token",
     });

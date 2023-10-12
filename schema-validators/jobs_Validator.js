@@ -15,4 +15,13 @@ const jobs_Validator = Joi.object({
   job_description: Joi.string().required(),
 });
 
-module.exports = { jobs_Validator };
+const apply_for_job_Validator = Joi.object({
+  user_id: Joi.string().required(),
+  job_id: Joi.string().required(),
+});
+
+const job_IDValidator = Joi.object({
+  job_id: Joi.string().required(),
+});
+
+module.exports = { jobs_Validator, apply_for_job_Validator, job_IDValidator };

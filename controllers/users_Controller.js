@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 const {
   users_Validator,
   login_Validator,
-  jobs_IDValidator,
+  users_IDValidator,
 } = require("../schema-validators/users_Validator");
 
 //todo:@ =======================================================================  GET USER DETAILS =================================================================== //
@@ -16,9 +16,8 @@ const {
 //@route GET /api/seeker/user
 //@access private
 const getUserDetails = async (req, res) => {
-  // const { user_id } = req.body;
   // todo: @ desc- verify the input provided
-  const { error, value } = jobs_IDValidator.validate(req.body);
+  const { error, value } = users_IDValidator.validate(req.body);
   if (error) {
     return res.json({
       status: 400,
@@ -29,13 +28,13 @@ const getUserDetails = async (req, res) => {
   try {
     const user = await UserModel.findById(value.user_id);
 
-    res.json({
+    return res.json({
       status: 200,
       message: "User details",
       info: user,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -48,7 +47,6 @@ const getUserDetails = async (req, res) => {
 // @route Post /api/seeker/login
 // @access public
 const loginSeeker = async (req, res) => {
-  // const { email, password } = req.body;
   // todo: @ desc- verify the input provided
   const { error, value } = login_Validator.validate(req.body);
   if (error) {
@@ -63,7 +61,7 @@ const loginSeeker = async (req, res) => {
     const userExists = await UserModel.findOne({ email: value.email });
 
     if (!userExists) {
-      res.json({
+      return res.json({
         status: 400,
         message: "User email does not exist",
       });
@@ -73,20 +71,20 @@ const loginSeeker = async (req, res) => {
     const isMatch = await bcrypt.compare(value.password, userExists.password);
 
     if (!isMatch) {
-      res.json({
+      return res.json({
         status: 400,
         message: "Incorrect password",
       });
     }
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Login successful",
       info: userExists,
       token: generateToken(userExists._id),
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -113,7 +111,7 @@ const registerSeeker = async (req, res) => {
     const userExists = await UserModel.findOne({ email: value.email });
 
     if (userExists) {
-      res.json({
+      return res.json({
         status: 400,
         message: "Account exist with same email address",
       });
@@ -132,13 +130,13 @@ const registerSeeker = async (req, res) => {
       role: value.role,
     });
 
-    res.json({
+    return res.json({
       status: 201,
       message: "User created successfully",
       info: user,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });

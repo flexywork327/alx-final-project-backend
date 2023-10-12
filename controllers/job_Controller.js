@@ -3,7 +3,11 @@ const JobsModel = require("../model/jobs_Model");
 const UserModel = require("../model/user_Model");
 const Categories = require("../model/categories_Model");
 const Applied_Jobs = require("../model/jobs_Applied_Model");
-const { jobs_Validator } = require("../schema-validators/jobs_Validator");
+const {
+  jobs_Validator,
+  job_IDValidator,
+} = require("../schema-validators/jobs_Validator");
+const { users_IDValidator } = require("../schema-validators/users_Validator");
 
 //todo:@ ======================================================================= GET ALL JOBS ===================================================================== //
 //@route Get api/posted jobs
@@ -197,27 +201,35 @@ const postJob = async (req, res) => {
 //@desc Get single job
 //@access Private
 const getJobDetails = async (req, res) => {
-  const { job_id } = req.body;
+  // const { job_id } = req.body;
+  // todo: @ desc- verify the input provided
+  const { error, value } = job_IDValidator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
   try {
-    const job = await JobsModel.findById(job_id);
+    const job = await JobsModel.findById(value.job_id);
 
-    // if (!job) {
-    //   res.json({
-    //     message: "Job not found",
-    //     status: 404,
-    //   });
-    // }
+    if (!job) {
+      return res.json({
+        message: "Job not found",
+        status: 404,
+      });
+    }
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Successfully fetched job details",
       info: job,
     });
   } catch (err) {
-    res.json({
+    return res.json({
       status: 400,
-      message: "Failed to fetch job details",
-      info: err.message,
+      message: err.message,
     });
   }
 };
@@ -232,13 +244,13 @@ const getJobsByCategory = async (req, res) => {
   try {
     const job = await JobsModel.find({ job_category });
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Successfully fetched jobs by category",
       info: job,
     });
   } catch (err) {
-    res.json({
+    return res.json({
       status: 400,
       message: "Failed to fetch job details",
       info: err.message,
@@ -259,16 +271,6 @@ const JobFilter = async (req, res) => {
   const job_location_lower = job_location.toLowerCase();
 
   try {
-    // find job by either job_title, job_location or job_category
-    // const job = await JobsModel.find({
-    //   $or: [
-    //     { job_title: { $regex: job_title_lower, $options: "i" } },
-    //     { job_location: { $regex: job_location_lower, $options: "i" } },
-    //     { job_category: { $regex: job_category_lower, $options: "i" } },
-    //   ],
-    //   status: "active",
-    // });
-
     // find jobs that match all two criteria
     const job = await JobsModel.find({
       job_title: { $regex: job_title_lower, $options: "i" },
@@ -276,13 +278,13 @@ const JobFilter = async (req, res) => {
       status: "active",
     });
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Job retrieved successfully",
       info: job,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error,
     });
@@ -298,13 +300,13 @@ const getCategories = async (req, res) => {
   try {
     const categories = await Categories.find();
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Categories retrieved successfully",
       info: categories,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -324,13 +326,13 @@ const createProductsCategory = async (req, res) => {
       category_name,
     });
 
-    res.json({
+    return res.json({
       status: 201,
       message: "Category created successfully",
       info: category,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -343,24 +345,39 @@ const createProductsCategory = async (req, res) => {
 // @access private
 
 const ApplyForJob = async (req, res) => {
-  const { job_id, user_id } = req.body;
   const file = req.files;
   console.log(file);
+  // todo: @ desc- verify the input provided
+  const { error, value } = apply_for_job_Validator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
+  // check if file is present
+  if (!file) {
+    return res.json({
+      status: 400,
+      message: "No file uploaded",
+    });
+  }
 
   try {
-    const job = await JobsModel.findById(job_id);
+    const job = await JobsModel.findById(value.job_id);
 
     if (!job) {
-      res.json({
+      return res.json({
         status: 404,
         message: "Job not found",
       });
     }
 
-    const user = await UserModel.findById(user_id);
+    const user = await UserModel.findById(value.user_id);
 
     if (!user) {
-      res.json({
+      return res.json({
         status: 404,
         message: "User not found",
       });
@@ -379,14 +396,13 @@ const ApplyForJob = async (req, res) => {
       resume: result.secure_url,
     });
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Successfully applied for job",
-      // info: applied_job,
-      info: result,
+      info: applied_job,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -399,25 +415,33 @@ const ApplyForJob = async (req, res) => {
 // @access private
 
 const getAllJobsAppliedByUser = async (req, res) => {
-  const { user_id } = req.body;
+  // todo: @ desc- verify the input provided
+  const { error, value } = users_IDValidator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
   try {
     // find all jobs applied by user
-    const applied_jobs = await Applied_Jobs.find({ user_id });
+    const applied_jobs = await Applied_Jobs.find({ user_id: value.user_id });
 
     if (applied_jobs.length === 0) {
-      res.json({
+      return res.json({
         status: 404,
         message: "No jobs found",
       });
     } else {
-      res.json({
+      return res.json({
         status: 200,
         message: "Successfully fetched all applied jobs",
         info: applied_jobs,
       });
     }
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -440,13 +464,13 @@ const JobsByPreference = async (req, res) => {
       ],
     });
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Successfully fetched jobs by preference",
       info: jobs,
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -458,34 +482,40 @@ const JobsByPreference = async (req, res) => {
 // @route POST /api/shopper/get_user_job_dashboard
 
 const GetUserJobDashboard = async (req, res) => {
-  const { user_id } = req.body;
+  // todo: @ desc- verify the input provided
+  const { error, value } = users_IDValidator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
 
   try {
-    // const jobs = await JobsModel.find({ company_uuid: user_id });
-    // get total number of jobs posted by user and arrange them by the latest jobs by date
-    const total_jobs = await JobsModel.find({ company_uuid: user_id })
+    //* get total number of jobs posted by user and arrange them by the latest jobs by date
+    const total_jobs = await JobsModel.find({ company_uuid: value.user_id })
       .sort({
         date: -1,
       })
       .countDocuments();
 
-    // get total number of active jobs posted by user and arrange them by the latest jobs by date
+    //* get total number of active jobs posted by user and arrange them by the latest jobs by date
     const activeJobs = await JobsModel.find({
-      company_uuid: user_id,
+      company_uuid: value.user_id,
       status: "active",
     })
       .sort({ date: -1 })
       .countDocuments();
 
-    // get total number of inactive jobs posted by user and arrange them by the latest jobs by date
+    //* get total number of inactive jobs posted by user and arrange them by the latest jobs by date
     const inactiveJobs = await JobsModel.find({
-      company_uuid: user_id,
+      company_uuid: value.user_id,
       status: "inactive",
     })
       .sort({ date: -1 })
       .countDocuments();
 
-    res.json({
+    return res.json({
       status: 200,
       message: "Successfully fetched user job dashboard",
       info: {
@@ -495,7 +525,7 @@ const GetUserJobDashboard = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({
+    return res.json({
       status: 500,
       message: error.message,
     });
@@ -503,19 +533,19 @@ const GetUserJobDashboard = async (req, res) => {
 };
 
 module.exports = {
+  getAllJobsAppliedByUser,
+  createProductsCategory,
+  GetUserJobDashboard,
+  getJobsPostedByUser,
   getJobsByCategory,
-  getJobDetails,
+  JobsByPreference,
   ChangeJobStatus,
+  getCategories,
+  getJobDetails,
   getInactive,
   activateJob,
-  JobFilter,
-  getCategories,
-  GetUserJobDashboard,
-  getActive,
-  getJobsPostedByUser,
-  createProductsCategory,
-  postJob,
   ApplyForJob,
-  getAllJobsAppliedByUser,
-  JobsByPreference,
+  JobFilter,
+  getActive,
+  postJob,
 };

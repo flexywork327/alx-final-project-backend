@@ -31,8 +31,8 @@ const login_Validator = Joi.object({
 
 // todo: ===================================================== validation for adding jobs =====================================================
 
-const jobs_IDValidator = Joi.object({
+const users_IDValidator = Joi.object({
   user_id: Joi.string().required(),
 });
 
-module.exports = { users_Validator, login_Validator, jobs_IDValidator };
+module.exports = { users_Validator, login_Validator, users_IDValidator };
