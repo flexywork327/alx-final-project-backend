@@ -16,8 +16,9 @@ const jobs_Validator = Joi.object({
 });
 
 const apply_for_job_Validator = Joi.object({
-  user_id: Joi.string().required(),
   job_id: Joi.string().required(),
+  user_id: Joi.string().required(),
+  resume: Joi.string(),
 });
 
 const job_IDValidator = Joi.object({

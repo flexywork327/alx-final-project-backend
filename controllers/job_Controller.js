@@ -6,6 +6,7 @@ const Applied_Jobs = require("../model/jobs_Applied_Model");
 const {
   jobs_Validator,
   job_IDValidator,
+  apply_for_job_Validator,
 } = require("../schema-validators/jobs_Validator");
 const { users_IDValidator } = require("../schema-validators/users_Validator");
 
@@ -391,14 +392,23 @@ const ApplyForJob = async (req, res) => {
 
     // store in database
     const applied_job = await Applied_Jobs.create({
-      job_id,
-      user_id,
+      job_id: value.job_id,
+      job_title: job.job_title,
+      job_experience: job.job_experience,
+      job_salary: job.job_salary,
+      job_description: job.job_description,
+      job_type: job.job_type,
+      job_company_email: job.job_company_email,
+      company_name: job.job_company_name,
+      user_id: value.user_id,
+      user_name: `${user.first_name} ${user.last_name}`,
+      user_email: `${user.email}`,
       resume: result.secure_url,
     });
 
     return res.json({
       status: 200,
-      message: "Successfully applied for job",
+      message: `Successfully applied for ${job.job_title} job`,
       info: applied_job,
     });
   } catch (error) {
@@ -532,9 +542,47 @@ const GetUserJobDashboard = async (req, res) => {
   }
 };
 
+// todo: @ =======================================================================  GET JOB APPLIED DETAILS  =================================================================== //
+// @Desc Get job applied details
+// @route POST /api/shopper/view_job_applied_details
+// @access private
+
+const getJobAppliedDetails = async (req, res) => {
+  const { error, value } = job_IDValidator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
+  try {
+    const job = await Applied_Jobs.findById(value.job_id);
+
+    if (!job) {
+      return res.json({
+        status: 404,
+        message: "Job not found",
+      });
+    }
+
+    return res.json({
+      status: 200,
+      message: "Successfully fetched job details",
+      info: job,
+    });
+  } catch (error) {
+    return res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllJobsAppliedByUser,
   createProductsCategory,
+  getJobAppliedDetails,
   GetUserJobDashboard,
   getJobsPostedByUser,
   getJobsByCategory,

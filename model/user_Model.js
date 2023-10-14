@@ -14,6 +14,7 @@ const userSchema = mongoose.Schema(
 
     location: {
       type: String,
+      default: "N/A",
     },
 
     email: {
@@ -29,29 +30,12 @@ const userSchema = mongoose.Schema(
 
     resume: {
       type: String,
-    },
-
-    skills: {
-      type: String,
+      default: "N/A",
     },
 
     experience: {
       type: String,
-    },
-
-    applied_jobs: {
-      type: Array,
-      default: [],
-    },
-
-    saved_jobs: {
-      type: Array,
-      default: [],
-    },
-
-    preferences: {
-      type: Array,
-      default: [],
+      default: "N/A",
     },
 
     isPreferenceSelected: {
