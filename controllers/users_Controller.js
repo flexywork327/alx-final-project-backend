@@ -1,6 +1,7 @@
 const Categories = require("../model/categories_Model");
 const JobsModel = require("../model/jobs_Model");
 const UserModel = require("../model/user_Model");
+const cloudinary = require("../utils/cloudinary");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -8,6 +9,7 @@ const {
   users_Validator,
   login_Validator,
   users_IDValidator,
+  updateProfile_Validator,
 } = require("../schema-validators/users_Validator");
 
 //todo:@ =======================================================================  GET USER DETAILS =================================================================== //
@@ -185,6 +187,73 @@ const setJobPreference = async (req, res) => {
   }
 };
 
+// todo:@ =======================================================================  UPDATE PROFILE  =================================================================== //
+// desc Update Profile
+// @route Post /api/seeker/update_profile
+// @access private
+
+const setUpdateProfile = async (req, res) => {
+  const file = req.files;
+  console.log(file);
+  const { error, value } = updateProfile_Validator.validate(req.body);
+  if (error) {
+    return res.json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  }
+
+  // check if file is present
+  if (!file) {
+    return res.json({
+      status: 400,
+      message: "No file uploaded",
+    });
+  }
+
+  try {
+    // check if user exists
+    const userExists = await UserModel.findById(value.user_id);
+
+    if (!userExists) {
+      res.json({
+        status: 400,
+        message: "User does not exist",
+      });
+    }
+
+    // upload file to cloudinary
+    const result = await cloudinary.uploader.upload(file.resume[0].path, {
+      resource_type: "auto",
+      folder: "seeker",
+    });
+
+    // create User
+    const user = await UserModel.findByIdAndUpdate(
+      value.user_id,
+      {
+        first_name: value.first_name,
+        last_name: value.last_name,
+        location: value.location,
+        resume: result.secure_url,
+        experience: value.experience,
+      },
+      { new: true }
+    );
+
+    res.json({
+      status: 200,
+      message: "Profile updated successfully",
+      info: user,
+    });
+  } catch (error) {
+    res.json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
 //todo:@ =======================================================================  TOKEN GENERATION  =================================================================== //
 
 // Generate token
@@ -198,4 +267,5 @@ module.exports = {
   loginSeeker,
   generateToken,
   setJobPreference,
+  setUpdateProfile,
 };

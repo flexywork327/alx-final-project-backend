@@ -35,4 +35,20 @@ const users_IDValidator = Joi.object({
   user_id: Joi.string().required(),
 });
 
-module.exports = { users_Validator, login_Validator, users_IDValidator };
+// todo: ===================================================== validation for updating user profile =====================================================
+
+const updateProfile_Validator = Joi.object({
+  user_id: Joi.string().required(),
+  first_name: Joi.string(),
+  last_name: Joi.string(),
+  location: Joi.string(),
+  resume: Joi.string(),
+  experience: Joi.string(),
+});
+
+module.exports = {
+  users_Validator,
+  login_Validator,
+  users_IDValidator,
+  updateProfile_Validator,
+};

@@ -59,7 +59,11 @@ const jobSchema = mongoose.Schema(
 
     date: {
       type: Date,
-      default: Date.now(`MM/DD/YYYY`),
+      default: new Date().toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
     },
   },
   {

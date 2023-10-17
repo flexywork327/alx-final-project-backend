@@ -36,7 +36,7 @@ router.post("/view_job_applied_details", getJobAppliedDetails);
 router.post("/change_job_status", ChangeJobStatus);
 router.post("/get_user_job_dashboard", GetUserJobDashboard);
 router.post("/get_jobs_by_preference", JobsByPreference);
-router.post("/products_by_category", getJobsByCategory);
+router.post("/get_jobs_by_category", getJobsByCategory);
 router.post("/all_jobs_by_user", getJobsPostedByUser);
 router.post("/get_job_details", getJobDetails);
 router.post("/activate_job", activateJob);
