@@ -1,6 +1,6 @@
-const Categories = require("../model/categories_Model");
-const JobsModel = require("../model/jobs_Model");
-const UserModel = require("../model/user_Model");
+const Categories = require("../models/categories_Model");
+const JobsModel = require("../models/jobs_Model");
+const UserModel = require("../models/user_Model");
 const cloudinary = require("../utils/cloudinary");
 const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require("jsonwebtoken");
@@ -10,7 +10,7 @@ const {
   login_Validator,
   users_IDValidator,
   updateProfile_Validator,
-} = require("../schema-validators/users_Validator");
+} = require("../validators/users_Validator");
 
 //todo:@ =======================================================================  GET USER DETAILS =================================================================== //
 

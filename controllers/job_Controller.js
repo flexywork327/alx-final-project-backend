@@ -1,19 +1,19 @@
 const cloudinary = require("../utils/cloudinary");
-const JobsModel = require("../model/jobs_Model");
-const UserModel = require("../model/user_Model");
-const Categories = require("../model/categories_Model");
-const Applied_Jobs = require("../model/jobs_Applied_Model");
+const JobsModel = require("../models/jobs_Model");
+const UserModel = require("../models/user_Model");
+const Categories = require("../models/categories_Model");
+const Applied_Jobs = require("../models/jobs_Applied_Model");
 const {
   jobs_Validator,
   job_IDValidator,
   apply_for_job_Validator,
-} = require("../schema-validators/jobs_Validator");
-const { users_IDValidator } = require("../schema-validators/users_Validator");
+} = require("../validators/jobs_Validator");
+const { users_IDValidator } = require("../validators/users_Validator");
 
 //todo:@ ======================================================================= GET ALL JOBS ===================================================================== //
-//@route Get api/posted jobs
-//@desc Get all posted jobs
-//@access Public
+// @route Get api/posted jobs
+// @desc Get all posted jobs
+// @access Public
 const getJobsPostedByUser = async (req, res) => {
   const { user_id } = req.body;
 
@@ -40,9 +40,9 @@ const getJobsPostedByUser = async (req, res) => {
 
 //todo:@ ======================================================================= GET INACTIVE JOBS ================================================================ //
 
-//@route Get api/admin/inactive
-//@desc Get inactive jobs
-//@access Private
+// @route Get api/admin/inactive
+// @desc Get inactive jobs
+// @access Private
 const getInactive = async (req, res) => {
   try {
     const job = await JobsModel.find({ status: "inactive" }).sort({ date: -1 });
@@ -63,9 +63,9 @@ const getInactive = async (req, res) => {
 
 //todo: @ ======================================================================= GET ACTIVE JOBS ================================================================== //
 
-//@route Get api/Jobs/active
-//@desc Get active jobs
-//@access Private
+// @route Get api/Jobs/active
+// @desc Get active jobs
+// @access Private
 const getActive = async (req, res) => {
   try {
     const job = await JobsModel.find({ status: "active" }).sort({ date: -1 });
@@ -85,9 +85,9 @@ const getActive = async (req, res) => {
 
 //todo: @ =======================================================================  ACTIVATE JOBS =================================================================== //
 
-//@ desc activate an item
-//@ Post api/admin/activate_job
-//private
+// @desc activate an item
+// @Post api/admin/activate_job
+// @access private
 const activateJob = async (req, res) => {
   const { job_id } = req.body;
   try {
@@ -117,9 +117,9 @@ const activateJob = async (req, res) => {
 
 //todo:@ ======================================================================= DEACTIVATE JOBS ================================================================== //
 
-//@route Deactivate an item
-//@ Post api/admin/deactivate_job
-//private
+// @route Deactivate an item
+// @Post api/admin/deactivate_job
+// @access private
 const ChangeJobStatus = async (req, res) => {
   const { job_id, status_flag } = req.body;
   try {
